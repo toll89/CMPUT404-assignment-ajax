@@ -12,4 +12,13 @@ Contributors / Licensing
 
 Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
 
+Collaboration
+========================
+
+Collaborated with Mate Verunica's group.
+
+Resources
+=======================
+Created gradient used on canvas through http://victorblog.com/html5-canvas-gradient-creator/
+
 
