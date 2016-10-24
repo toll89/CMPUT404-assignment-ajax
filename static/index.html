@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width" />
     <meta name="license" content="
         Copyright 2013 Abram Hindle
+        Modified 2016 Jarrett Toll
         
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -38,8 +39,11 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
+
                     //XXX: parse some JSON from the request!
+                    var rtext = JSON.parse(xhr.responseText);
                     //XXX: Pass the data to the callback!
+                    callback(rtext);
                 }
             } 
             catch(e) {
@@ -47,9 +51,23 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             }
         }
     };
+
+
     //XXX: POST to a URL
+    if(objects == null){
+        xhr.open("GET", url, true);
+    }
+    else{
+        xhr.open("POST", url, true);
+    }
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.setRequestHeader("Accept", "application/json");
+    var stringified = JSON.stringify(objects)
+    xhr.send(stringified);
+
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
+    
 }
 
 
@@ -59,13 +77,27 @@ world = {};
 function drawCircle(context,entity) {
     with(context) {
         beginPath();              
-        lineWidth = 3;
+        lineWidth = 2;
         var x = entity["x"];
         var y = entity["y"];
-        //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        moveTo(x,y);
+       
+        if(entity["gradient"] == 'Y'){
+            var grd = createLinearGradient(0.000, 2765.500, 1419.000, 2765.500);
+            grd.addColorStop(0.000, 'rgba(242, 9, 9, 1.000)');
+            grd.addColorStop(0.376, 'rgba(255, 127, 0, 1.000)');
+            grd.addColorStop(0.722, 'rgba(255, 255, 0, 1.000)');
+            grd.addColorStop(1.000, 'rgba(255, 255, 255, 1.000)');
+            fillStyle = grd;
+            strokeStyle = grd
+        }
+        else{
+            fillStyle = entity["colour"];
+            strokeStyle = entity["colour"];
+        }
+        
+        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);
+        fill();
         stroke();                                
     }
 }
@@ -137,7 +169,10 @@ function getPosition(e) {
 function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just  modified!
+    //TODO XXX: Send a XHTML Request that updates the entity you just  modified!
+    sendJSONXMLHTTPRequest(("/entity/" + entity), data, function(jobject){
+       });
+
 
 }
 
@@ -247,21 +282,28 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'colour':'red','radius':20,});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'colour':'white', 'radius':5,});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
-                          'radius':10});
+    addEntityWithoutName({'x':x,'y':y,'colour':'orange',
+                          'radius':10, 'gradient':'Y',});
 });
 
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
+
+
+    sendJSONXMLHTTPRequest("/world", null, function(jobject){
+       world = jobject;
+    
+   });
+    drawNextFrame();
     drawFrame();
 }
 
