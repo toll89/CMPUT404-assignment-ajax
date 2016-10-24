@@ -15,7 +15,7 @@ Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
 Collaboration
 ========================
 
-Collaborated with Mate Verunica's group.
+Consulted with Mate Verunica's group.
 
 Resources
 =======================
